@@ -1,6 +1,21 @@
-const auth = require("./middleware/auth");
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const path = require("path");
+const connectDB = require("./config/db");
 
-// Example: only logged-in users can access
-app.get("/dashboard", auth, (req, res) => {
-  res.json({ msg: `Welcome User ${req.user.id}, Role: ${req.user.role}` });
-});
+const app = express();
+connectDB();
+
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+// Static frontend files
+app.use(express.static(path.join(__dirname, "public")));
+
+// Routes
+app.use("/", require("./routes/auth"));
+
+const PORT = 5000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
