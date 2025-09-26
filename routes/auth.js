@@ -4,6 +4,7 @@ const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { z } = require("zod");
+const verifyCaptcha = require("../utils/verifyCaptcha");
 
 // Zod schema for registration
 const registerSchema = z.object({
@@ -16,6 +17,12 @@ const registerSchema = z.object({
 // Register
 router.post("/register", async (req, res) => {
   try {
+    // CAPTCHA verification
+    const captcha = req.body.captcha;
+    if (!captcha) return res.status(400).json({ msg: "CAPTCHA required" });
+    const captchaValid = await verifyCaptcha(captcha);
+    if (!captchaValid) return res.status(400).json({ msg: "CAPTCHA verification failed" });
+
     // Validate request body
     const parsed = registerSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -40,6 +47,12 @@ router.post("/register", async (req, res) => {
 // Login
 router.post("/login", async (req, res) => {
   try {
+    // CAPTCHA verification
+    const captcha = req.body.captcha;
+    if (!captcha) return res.status(400).json({ msg: "CAPTCHA required" });
+    const captchaValid = await verifyCaptcha(captcha);
+    if (!captchaValid) return res.status(400).json({ msg: "CAPTCHA verification failed" });
+
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ msg: "Invalid credentials" });
