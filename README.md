@@ -1,7 +1,7 @@
 # Secure Login System with User Role Management
 
 ## Project Overview
-This project is a secure backend for a login system built with Node.js, Express, and MongoDB. It features:
+This project is a Secure Login System with User Role Management built with Node.js, Express, and MongoDB. It features:
 - User registration and login with JWT authentication
 - Role-based access control (User/Admin)
 - Google reCAPTCHA v2 integration to prevent brute force attacks
