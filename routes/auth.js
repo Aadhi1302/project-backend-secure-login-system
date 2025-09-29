@@ -57,9 +57,31 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ msg: "Invalid credentials" });
 
+    // Check for account lockout
+    if (user.lockUntil && user.lockUntil > Date.now()) {
+      const minutes = Math.ceil((user.lockUntil - Date.now()) / 60000);
+      return res.status(403).json({ msg: `Account locked. Try again in ${minutes} minute(s).` });
+    }
+
     // Compare the hashed password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
+    if (!isMatch) {
+      user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+      // Lock account after 5 failed attempts for 15 minutes
+      if (user.failedLoginAttempts >= 5) {
+        user.lockUntil = new Date(Date.now() + 15 * 60 * 1000);
+        await user.save();
+        return res.status(403).json({ msg: "Account locked due to too many failed login attempts. Try again in 15 minutes." });
+      } else {
+        await user.save();
+      }
+      return res.status(400).json({ msg: "Invalid credentials" });
+    }
+
+    // Reset failed attempts and lock on successful login
+    user.failedLoginAttempts = 0;
+    user.lockUntil = null;
+    await user.save();
 
     const token = jwt.sign(
       { id: user._id, role: user.role, username: user.username },
