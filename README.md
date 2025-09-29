@@ -72,5 +72,4 @@ This project is a secure backend for a login system built with Node.js, Express,
   - Challenge: Handling CORS and static file serving.
   - Solution: Used Express static middleware and ensured API endpoints and static files do not conflict.
 
-## License
-MIT
+
