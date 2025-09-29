@@ -1,4 +1,4 @@
-# Secure Login System Backend
+# Secure Login System with User Role Management
 
 ## Project Overview
 This project is a secure backend for a login system built with Node.js, Express, and MongoDB. It features:
